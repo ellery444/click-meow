@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=点一下，喵一下
+Name[en]=Click Meow
+Comment=点击鼠标左键，随机播放猫叫
+Exec="@CMAKE_CURRENT_BINARY_DIR@/click-meow"
+Icon=@CMAKE_SOURCE_DIR@/cat.svg
+Terminal=false
+Categories=AudioVideo;
+StartupNotify=false

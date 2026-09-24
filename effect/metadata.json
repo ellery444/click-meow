@@ -1,0 +1,13 @@
+{
+  "KPackageStructure": "KWin/Effect",
+  "KPlugin": {
+    "Id": "clickmeow",
+    "Name": "Click Meow",
+    "Description": "Forward left mouse presses to the Click Meow tray app",
+    "License": "GPL-3.0-or-later",
+    "Version": "1.0",
+    "EnabledByDefault": false,
+    "Category": "Accessibility"
+  },
+  "X-Plasma-API": "declarativescript"
+}
