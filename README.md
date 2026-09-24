@@ -2,14 +2,15 @@ Click Meow  🐱
 
 A tiny tray app for KDE Plasma Wayland that plays a random cat meow on every left click.
 
-supporting environment
+**supporting environment**
 
 only KDE Plasma Wayland / KWin 6.7.5 / Qt 6.11.2 / Arch Linux
 not for: Windows、macOS、GNOME or other Wayland othervKWin 
 
 The program uses the KWin native interface, so it needs to be compiled on the target machine. After the KWin upgrade, you should exit the program, recompile it, and log in to the desktop again to clear the old QML plug-in cache.
 
-you need
+
+**you need**
 
 The development documents of CMake, C++20 compiler, Python 3, pkg-config, and Qt 6 Widgets / Multimedia / QML / Quick / DBus, KWin, KConfig, KCoreAddons, KWindowSystem, epoxy, Wayland, libdrm are required.
 
@@ -24,7 +25,7 @@ The installation script will compile the program, link the KDE plug-in to the da
 
 Please keep the cloned directory: the program reads the built-in sound source, icons and plug-ins from here. After moving the directory, it needs to be rebuilt and installed.
 
-##Use
+**Use**
 
 Click the tray cat icon to open the settings, and the right-click menu can pause, audition or exit. After closing the setting window, the program continues to run on the tray. The volume and switch will be saved. The initial volume is 30%, and the login self-start is turned off by default.
 
@@ -48,7 +49,7 @@ Verified: real machine global click event arrival, 11 segments of audio decoding
 
 If the setting shows "Mouse listening is not connected", check whether the plug-in symbol link exists, rerun the installation script, and check the `clickmeow` / `MeowBridge` error in the KWin log. After upgrading KWin, please recompile and log in again.
 
-(un)install
+**(un)install**
 
 - `~/.local/share/kwin/effects/clickmeow`：链接到项目的 `effect/`。
 - `~/.local/share/applications/click-meow.desktop`：启动器入口。
