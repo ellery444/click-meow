@@ -7,7 +7,7 @@ supporting environment
 only KDE Plasma Wayland / KWin 6.7.5 / Qt 6.11.2 / Arch Linux
 not for: Windows、macOS、GNOME or other Wayland othervKWin 
 
-程序使用 KWin 原生接口，因此需要在目标机器上编译。KWin 升级后应退出程序、重新编译，并重新登录桌面以清除旧的 QML 插件缓存。
+The program uses the KWin native interface, so it needs to be compiled on the target machine. After the KWin upgrade, you should exit the program, recompile it, and log in to the desktop again to clear the old QML plug-in cache.
 
 you need
 
