@@ -1,6 +1,14 @@
 Click Meow  🐱
 
-A tiny tray app for KDE Plasma Wayland that plays a random cat meow on every left click.
+A tiny tray app for KDE Plasma Wayland and Windows that plays a random cat meow on every left click.
+
+## Windows portable preview
+
+Windows 10/11 x64 support is available as a portable build. It uses Windows Raw Input, with no KDE dependency or administrator rights needed. Extract the **entire ZIP**, then run `click-meow.exe`. The tray menu, random meows, volume, custom WAV files and optional login startup work through the same interface.
+
+Builds are available under [Windows portable build → Artifacts](https://github.com/ellery444/click-meow/actions/workflows/windows.yml) after a successful run (GitHub sign-in required). Instructions and the real-PC test checklist are in [README-Windows.txt](windows/README-Windows.txt). This is a preview: automated build checks do not verify the sound from your speakers or every mouse/touchpad model.
+
+Windows builds use Qt 6.8.3 and MSVC 2022. CMake selects the Windows backend automatically; `windows/package.ps1` collects Qt and MSVC runtime DLLs, tests the portable directory, and produces the ZIP. Do not move only the EXE out of its folder. Disable and re-enable login startup after moving the whole folder.
 
 ## Download & install / 下载安装
 
@@ -18,10 +26,10 @@ This is a **guided source installer**, not a universal prebuilt binary. On Arch 
 
 中文：下载解压，在解压目录运行 `bash Install.sh`，按提示安装依赖并等待编译。完成后可删除下载包和解压目录，再从应用启动器打开“点一下，喵一下”。仅适用于兼容的 KDE Wayland 环境。
 
-**supporting environment**
+**Linux supporting environment**
 
 only KDE Plasma Wayland / KWin 6.7.5 / Qt 6.11.2 / Arch Linux
-not for: Windows、macOS、GNOME or other Wayland othervKWin 
+The Linux installer does not support Windows, macOS, GNOME or other Wayland compositors. For Windows, use the separate portable build above.
 
 The program uses the KWin native interface, so it needs to be compiled on the target machine. After the KWin upgrade, you should exit the program, recompile it, and log in to the desktop again to clear the old QML plug-in cache.
 

@@ -1,0 +1,18 @@
+Click Meow code: GPL-3.0-or-later; see LICENSE.
+Cat recordings: Joseph SARDIN / BigSoundBank, CC0; see SOUNDS.md.
+
+Qt 6.8.3 libraries and plugins: dynamically linked, open-source distribution.
+License information and corresponding source:
+https://www.qt.io/licensing/open-source-lgpl-obligations
+https://download.qt.io/archive/qt/6.8/6.8.3/single/
+See Qt-LICENSES when provided by the Qt binary distribution.
+
+Qt Multimedia's FFmpeg dependencies, when included by windeployqt:
+https://doc.qt.io/qt-6.8/qtmultimedia-attribution-ffmpeg.html
+https://ffmpeg.org/legal.html
+
+Microsoft Visual C++ Runtime: Microsoft redistributable runtime DLLs.
+https://learn.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files
+
+Build recipes for this package are in .github/workflows/windows.yml and
+windows/package.ps1 in the Click Meow repository.

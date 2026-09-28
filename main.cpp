@@ -1,8 +1,15 @@
 #include <QApplication>
 #include <QCheckBox>
+#ifdef Q_OS_WIN
+#include "windows-input.h"
+#include <QLocalServer>
+#include <QLocalSocket>
+#include <QCryptographicHash>
+#else
 #include <QDBusConnection>
 #include <QDBusInterface>
 #include <QDBusReply>
+#endif
 #include <QDesktopServices>
 #include <QDialog>
 #include <QDir>
@@ -25,12 +32,15 @@
 #include <QTimer>
 #include <algorithm>
 
-static const QString root = QStringLiteral(MEOW_ROOT);
+static QString root;
 static const QString service = QStringLiteral("local.clickmeow.App");
 
 class MeowApp : public QObject {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "local.clickmeow.App")
+#ifdef Q_OS_WIN
+    WindowsInput input;
+#endif
     QSettings settings;
     QSystemTrayIcon tray;
     QMenu menu;
@@ -52,11 +62,13 @@ class MeowApp : public QObject {
     int clicks = 0;
     int plays = 0;
 
+    #ifndef Q_OS_WIN
     QDBusMessage effectCall(const QString &method) {
         QDBusInterface effects("org.kde.KWin", "/Effects", "org.kde.kwin.Effects");
         effects.setTimeout(2000);
         return effects.call(method, "clickmeow");
     }
+    #endif
     void updateState() {
         int ready = 0;
         for (auto sound : sounds) ready += sound->status() == QSoundEffect::Ready;
@@ -68,6 +80,10 @@ class MeowApp : public QObject {
     }
     void refreshListener() {
         if (!enabled) return;
+#ifdef Q_OS_WIN
+        listenerLoaded = input.start();
+        error = input.errorString();
+#else
         QDBusReply<bool> loaded = effectCall("isEffectLoaded");
         if (loaded.isValid() && loaded.value()) {
             listenerLoaded = true;
@@ -77,7 +93,16 @@ class MeowApp : public QObject {
             listenerLoaded = reply.isValid() && reply.value();
             error = listenerLoaded ? "" : "KDE 点击插件未加载；请查看 README 的修复说明。";
         }
+#endif
         updateState();
+    }
+    void stopListener() {
+#ifdef Q_OS_WIN
+        input.stop();
+#else
+        effectCall("unloadEffect");
+#endif
+        listenerLoaded = false;
     }
     void setEnabled(bool value) {
         enabled = value;
@@ -86,8 +111,7 @@ class MeowApp : public QObject {
         enabledAction->setChecked(value);
         if (value) refreshListener();
         else {
-            effectCall("unloadEffect");
-            listenerLoaded = false;
+            stopListener();
             for (auto s : sounds) s->stop();
             playing.clear();
             error.clear();
@@ -121,7 +145,7 @@ class MeowApp : public QObject {
             if (sounds[i]->status() == QSoundEffect::Ready) available.append(i);
         if (available.isEmpty()) return;
         if (available.size() > 1) available.removeAll(lastIndex);
-        int index = available.at(QRandomGenerator::global()->bounded(available.size()));
+        int index = available.at(QRandomGenerator::global()->bounded(int(available.size())));
         auto sound = sounds[index];
         playing.removeIf([](auto s) { return !s->isPlaying(); });
         playing.removeAll(sound);
@@ -165,8 +189,13 @@ public:
         hint->setWordWrap(true);
         layout->addRow(hint);
         auto autostart = new QCheckBox("登录桌面时自动启动");
+#ifdef Q_OS_WIN
+        const auto autostartPath = QStringLiteral("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run");
+        autostart->setChecked(QSettings(autostartPath, QSettings::NativeFormat).contains("ClickMeow"));
+#else
         const auto autostartPath = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + "/autostart/click-meow.desktop";
         autostart->setChecked(QFile::exists(autostartPath));
+#endif
         layout->addRow(autostart);
         enabledAction = menu.addAction("开启随机猫叫");
         enabledAction->setCheckable(true);
@@ -192,19 +221,35 @@ public:
         });
         connect(autostart, &QCheckBox::clicked, this, [this, autostart, autostartPath](bool value) {
             bool ok;
+#ifdef Q_OS_WIN
+            QSettings startup(autostartPath, QSettings::NativeFormat);
+            if (value) startup.setValue("ClickMeow", "\"" + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + "\"");
+            else startup.remove("ClickMeow");
+            startup.sync();
+            ok = startup.status() == QSettings::NoError;
+#else
             if (value) {
                 QDir().mkpath(QFileInfo(autostartPath).absolutePath());
                 ok = QFile::copy(QStringLiteral(MEOW_DESKTOP_PATH), autostartPath);
             } else ok = QFile::remove(autostartPath);
+#endif
             if (!ok) {
+#ifdef Q_OS_WIN
+                autostart->setChecked(startup.contains("ClickMeow"));
+#else
                 autostart->setChecked(QFile::exists(autostartPath));
+#endif
                 QMessageBox::warning(&dialog, "未能修改自启动", "请检查自启动文件的权限。");
             }
         });
+#ifdef Q_OS_WIN
+        connect(&input, &WindowsInput::leftPressed, this, &MeowApp::LeftPressed, Qt::QueuedConnection);
+#else
         auto bus = QDBusConnection::sessionBus();
         bus.registerObject("/ClickMeow", this, QDBusConnection::ExportAllSlots);
         bus.connect("org.kde.KWin", "/ClickMeow", "local.clickmeow.Input", "LeftPressed", this, SLOT(LeftPressed()));
-        connect(qApp, &QCoreApplication::aboutToQuit, this, [this] { effectCall("unloadEffect"); });
+#endif
+        connect(qApp, &QCoreApplication::aboutToQuit, this, &MeowApp::stopListener);
         loadSounds();
         watcher.addPath(customDir);
         auto debounce = new QTimer(this);
@@ -242,6 +287,25 @@ int main(int argc, char **argv) {
     QApplication app(argc, argv);
     app.setApplicationName("click-meow");
     app.setQuitOnLastWindowClosed(false);
+#ifdef Q_OS_WIN
+    root = QCoreApplication::applicationDirPath();
+    const QString userPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    const QString socketName = "click-meow-" + QString::fromLatin1(QCryptographicHash::hash(userPath.toUtf8(), QCryptographicHash::Sha256).toHex().left(16));
+    QLocalSocket peer;
+    peer.connectToServer(socketName);
+    if (peer.waitForConnected(500)) {
+        peer.write("show");
+        peer.waitForBytesWritten(500);
+        return 0;
+    }
+    QLocalServer server;
+    server.setSocketOptions(QLocalServer::UserAccessOption);
+    if (!server.listen(socketName)) {
+        QMessageBox::warning(nullptr, "Click Meow", "程序已在运行，或无法创建本地通信端点。");
+        return 1;
+    }
+#else
+    root = QStringLiteral(MEOW_ROOT);
     auto bus = QDBusConnection::sessionBus();
     if (!bus.isConnected()) return 1;
     if (!bus.registerService(service)) {
@@ -249,7 +313,17 @@ int main(int argc, char **argv) {
         existing.call("Show");
         return 0;
     }
+#endif
     MeowApp meow;
+#ifdef Q_OS_WIN
+    QObject::connect(&server, &QLocalServer::newConnection, &meow, [&] {
+        while (auto socket = server.nextPendingConnection()) {
+            meow.Show();
+            socket->disconnectFromServer();
+            socket->deleteLater();
+        }
+    });
+#endif
     return app.exec();
 }
 #include "main.moc"

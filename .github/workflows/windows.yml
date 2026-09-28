@@ -1,0 +1,40 @@
+name: Windows portable build
+on:
+  push:
+    branches: [main]
+    paths: ['**.cpp', '**.h', 'CMakeLists.txt', 'windows/**', '.github/workflows/windows.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          arch: win64_msvc2022_64
+          modules: qtmultimedia
+          cache: true
+      - name: Build
+        shell: pwsh
+        run: |
+          cmake -S . -B build -A x64 -DBUILD_TESTING=ON
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          cmake --build build --config Release --parallel 4
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          ctest --test-dir build -C Release --output-on-failure
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Package and test portable folder
+        shell: pwsh
+        run: ./windows/package.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: click-meow-windows-x64
+          path: |
+            dist/click-meow-windows-x64.zip
+            dist/SHA256SUMS-windows.txt
+          if-no-files-found: error
+          retention-days: 30
