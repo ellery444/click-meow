@@ -1,0 +1,16 @@
+点一下，喵一下 — KDE Linux 安装包
+
+1. 解压整个压缩包。
+2. 在解压目录中打开终端，运行：bash Install.sh
+3. 根据提示安装缺少的依赖，等待编译完成。
+4. 在应用启动器搜索“点一下，喵一下”。
+
+仅支持 KDE Plasma Wayland。已验证 Arch Linux / KWin 6.7.5。
+这是带引导安装程序的源码包，会在本机编译，不是通用免编译二进制包。
+Arch 系统可按提示安装依赖；其他发行版需自行安装 README 列出的开发包。
+请勿使用 sudo 运行 Install.sh。只有补装系统依赖时才需要管理员密码。
+安装成功后可删除此解压目录，程序已复制到用户的数据目录。
+
+只检查环境而不安装：bash Install.sh --check
+完整说明：README.md
+项目：https://github.com/ellery444/click-meow

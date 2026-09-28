@@ -2,6 +2,7 @@
 """Build and register Click Meow for the current user. No root required."""
 import argparse
 import os
+import json
 from pathlib import Path
 import shutil
 import subprocess
@@ -10,12 +11,19 @@ import subprocess
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--no-build', action='store_true', help='Install an existing build')
+    parser.add_argument('--replace-existing', action='store_true', help='Replace a previous Click Meow plugin symlink after building')
     args = parser.parse_args()
     root = Path(__file__).resolve().parent
     data_home = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local/share'))
     link = data_home / 'kwin/effects/clickmeow'
-    if (link.exists() or link.is_symlink()) and link.resolve() != root / 'effect':
-        raise SystemExit(f'Refusing to replace an unrelated existing path: {link}')
+    replace_link = (link.exists() or link.is_symlink()) and link.resolve() != root / 'effect'
+    if replace_link:
+        try:
+            known = link.is_symlink() and json.loads((link / 'metadata.json').read_text())['KPlugin']['Id'] == 'clickmeow'
+        except (OSError, ValueError, KeyError):
+            known = False
+        if not args.replace_existing or not known:
+            raise SystemExit(f'Refusing to replace an unrelated existing path: {link}')
     if not args.no_build:
         subprocess.run(['cmake', '-S', str(root), '-B', str(root / 'build'),
                         '-DCMAKE_BUILD_TYPE=Release'], check=True)
@@ -27,7 +35,14 @@ def main():
         if not file.is_file():
             raise SystemExit(f'Missing build output: {file}')
     link.parent.mkdir(parents=True, exist_ok=True)
-    if not link.is_symlink():
+    if replace_link:
+        temporary = link.with_name(f'.clickmeow-{os.getpid()}')
+        temporary.symlink_to(root / 'effect', target_is_directory=True)
+        try:
+            temporary.replace(link)
+        finally:
+            temporary.unlink(missing_ok=True)
+    elif not link.is_symlink():
         link.symlink_to(root / 'effect', target_is_directory=True)
     applications = data_home / 'applications'
     applications.mkdir(parents=True, exist_ok=True)

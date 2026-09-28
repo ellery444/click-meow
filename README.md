@@ -2,6 +2,22 @@ Click Meow  🐱
 
 A tiny tray app for KDE Plasma Wayland that plays a random cat meow on every left click.
 
+## Download & install / 下载安装
+
+**[⬇ Download the KDE Linux installer](https://github.com/ellery444/click-meow/releases/latest/download/click-meow-kde-linux.tar.gz)** · [Release notes](https://github.com/ellery444/click-meow/releases/latest)
+
+Extract the archive, open a terminal in the extracted folder, and run:
+
+```sh
+bash Install.sh
+```
+
+The installer checks KDE Wayland and build dependencies, copies the app into your user data directory, compiles it, and adds an application launcher entry. Once installed, search for **Click Meow / 点一下，喵一下**. You can delete the downloaded archive and extracted folder afterwards.
+
+This is a **guided source installer**, not a universal prebuilt binary. On Arch Linux, it offers to install missing dependencies with your approval; other distributions require their development packages to be installed manually. Tested on Arch Linux / KWin 6.7.5; other KWin versions remain untested. Run `bash Install.sh --check` for a check without installation. Build logs are saved under `~/.local/share/click-meow/versions/<version-directory>/install.log`.
+
+中文：下载解压，在解压目录运行 `bash Install.sh`，按提示安装依赖并等待编译。完成后可删除下载包和解压目录，再从应用启动器打开“点一下，喵一下”。仅适用于兼容的 KDE Wayland 环境。
+
 **supporting environment**
 
 only KDE Plasma Wayland / KWin 6.7.5 / Qt 6.11.2 / Arch Linux
@@ -10,7 +26,7 @@ not for: Windows、macOS、GNOME or other Wayland othervKWin
 The program uses the KWin native interface, so it needs to be compiled on the target machine. After the KWin upgrade, you should exit the program, recompile it, and log in to the desktop again to clear the old QML plug-in cache.
 
 
-**you need**
+**Build from Git (developers)**
 
 The development documents of CMake, C++20 compiler, Python 3, pkg-config, and Qt 6 Widgets / Multimedia / QML / Quick / DBus, KWin, KConfig, KCoreAddons, KWindowSystem, epoxy, Wayland, libdrm are required.
 
@@ -54,10 +70,11 @@ If the setting shows "Mouse listening is not connected", check whether the plug-
 - `~/.local/share/kwin/effects/clickmeow`：链接到项目的 `effect/`。
 - `~/.local/share/applications/click-meow.desktop`：启动器入口。
 - `~/.local/share/click-meow/sounds/`：用户音源。
+- `~/.local/share/click-meow/versions/`: installed release files and build logs; old versions are retained on upgrade.
 - `~/.config/ellery/click-meow.conf`：偏好设置。
 - `~/.config/autostart/click-meow.desktop`：勾选自启动后创建。
 
-First turn off the self-start and exit from the tray, then delete the launcher file and plug-in symbol link, and finally delete the project directory. Custom sound sources and preferences can be kept on demand.
+First turn off the self-start and exit from the tray, then delete the launcher file and plug-in symbol link, and finally delete the project directory or the installed `versions/` directory. Custom sound sources and preferences can be kept on demand.
 
  License
 

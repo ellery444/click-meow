@@ -165,7 +165,7 @@ public:
         hint->setWordWrap(true);
         layout->addRow(hint);
         auto autostart = new QCheckBox("登录桌面时自动启动");
-        const auto autostartPath = QDir::homePath() + "/.config/autostart/click-meow.desktop";
+        const auto autostartPath = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + "/autostart/click-meow.desktop";
         autostart->setChecked(QFile::exists(autostartPath));
         layout->addRow(autostart);
         enabledAction = menu.addAction("开启随机猫叫");
