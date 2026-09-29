@@ -1,10 +1,11 @@
-#include "windows-input.h"
+#include "../windows-input.h"
 #include <QApplication>
 #include <QAudioDecoder>
 #include <QDir>
 #include <QEventLoop>
 #include <QIcon>
 #include <QTimer>
+#include <QUrl>
 #include <QDebug>
 
 int main(int argc, char **argv) {
