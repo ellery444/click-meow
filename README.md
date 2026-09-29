@@ -2,11 +2,13 @@ Click Meow  🐱
 
 A tiny tray app for KDE Plasma Wayland and Windows that plays a random cat meow on every left click.
 
-## Windows portable preview
+## Windows portable version
 
 Windows 10/11 x64 support is available as a portable build. It uses Windows Raw Input, with no KDE dependency or administrator rights needed. Extract the **entire ZIP**, then run `click-meow.exe`. The tray menu, random meows, volume, custom WAV files and optional login startup work through the same interface.
 
-Builds are available under [Windows portable build → Artifacts](https://github.com/ellery444/click-meow/actions/workflows/windows.yml) after a successful run (GitHub sign-in required). Instructions and the real-PC test checklist are in [README-Windows.txt](windows/README-Windows.txt). This is a preview: automated build checks do not verify the sound from your speakers or every mouse/touchpad model.
+The Windows package is named **click-meow-windows-x64.zip**; published packages will appear on the [Releases page](https://github.com/ellery444/click-meow/releases). Automated builds are also available under [Windows portable build → Artifacts](https://github.com/ellery444/click-meow/actions/workflows/windows.yml) after a successful run (GitHub sign-in required). Instructions are in [README-Windows.txt](windows/README-Windows.txt).
+
+The Windows portable build has passed automated build and packaging checks, and real-PC testing has been reported successful. This does not imply testing on every Windows version or mouse/touchpad model.
 
 Windows builds use Qt 6.8.3 and MSVC 2022. CMake selects the Windows backend automatically; `windows/package.ps1` collects Qt and MSVC runtime DLLs, tests the portable directory, and produces the ZIP. Do not move only the EXE out of its folder. Disable and re-enable login startup after moving the whole folder.
 
