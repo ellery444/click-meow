@@ -51,13 +51,13 @@ The installation script will compile the program, link the KDE plug-in to the da
 
 Please keep the cloned directory: the program reads the built-in sound source, icons and plug-ins from here. After moving the directory, it needs to be rebuilt and installed.
 
-**use**
+**Use**
 
 Click the tray cat icon to open the settings, and the right-click menu can pause, audition or exit. After closing the setting window, the program continues to run on the tray. The volume and switch will be saved. The initial volume is 30%, and the login self-start is turned off by default.
 
 "Add your own cat barking" will open `~/.local/share/click-meow/sounds/` (respect `XDG_DATA_HOME`). After inserting the **PCM WAV** file, it will automatically add random playback, and each file will not exceed 10 MiB. It is recommended to use short audio of less than two seconds; it does not support adding MP3 directly.
 
-development & inspection
+**development & inspection**
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
